@@ -35,6 +35,7 @@ SRC_USERMOD += $(URDFLIB_LIB_DIR)/sord/syntax.c
 # My Files
 SRC_USERMOD += $(URDFLIB_DIR)/urdflib.c
 SRC_USERMOD += $(URDFLIB_DIR)/graph.c
+SRC_USERMOD += $(URDFLIB_DIR)/middleware.c
 
 
 CFLAGS_USERMOD += -I$(URDFLIB_DIR)
