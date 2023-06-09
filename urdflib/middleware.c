@@ -30,3 +30,11 @@ Graph *graph_new(Model *model, const char *base_uri)
     g->model = model;
     return g;
 }
+
+bool graph_add_triple(Graph *g, const char *subject, const char *predicate, const char *object)
+{
+    SordNode *s = sord_new_uri(g->model->world, (const uint8_t *)subject);
+    SordNode *p = sord_new_uri(g->model->world, (const uint8_t *)predicate);
+    SordNode *o = sord_new_uri(g->model->world, (const uint8_t *)object);
+    return sord_add(g->model->model, (SordQuad){s, p, o, g->node});
+}

@@ -12,14 +12,6 @@
 
 
 
-// void graph_free(Graph *g)
-// {
-//     serd_env_free(g->env);
-//     sord_free(g->model);
-//     sord_world_free(g->world);
-//     free(g);
-// }
-
 // void graph_add_triple(Graph *g, const char *subject, const char *predicate, const char *object)
 // {
 //     SordNode *s = sord_new_uri(g->world, (const uint8_t *)subject);
