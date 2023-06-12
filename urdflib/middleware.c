@@ -1,4 +1,8 @@
 #include <stdlib.h>
+#include "py/runtime.h"
+#include "py/obj.h"
+#include "py/objstr.h"
+
 #include "../lib/sord/sord.h"
 #include "middleware.h"
 
@@ -13,16 +17,20 @@ Model *model_new()
 
 Graph *graph_new(Model *model, const char *base_uri)
 {
-    if(model == NULL){
+    if (model == NULL)
+    {
         Model *model = (Model *)malloc(sizeof(Model));
         model->world = sord_world_new();
         model->model = sord_new(model->world, SORD_SPO, false);
         model->env = serd_env_new(NULL);
     }
-    if (base_uri) {
-        SerdNode uri = serd_node_new_uri_from_string((const uint8_t *)base_uri, NULL,NULL );
+    if (base_uri)
+    {
+        SerdNode uri = serd_node_new_uri_from_string((const uint8_t *)base_uri, NULL, NULL);
         serd_env_set_base_uri(model->env, &uri);
-    }else{
+    }
+    else
+    {
         base_uri = "http://example.org/";
     }
     Graph *g = (Graph *)malloc(sizeof(Graph));
@@ -31,7 +39,12 @@ Graph *graph_new(Model *model, const char *base_uri)
     return g;
 }
 
-bool graph_add_triple(Graph *g, const char *subject, const char *predicate, const char *object)
+size_t middleware_num_quads(Model *model)
+{
+    return sord_num_quads(model->model);
+}
+
+bool middleware_graph_add_triple(Graph *g, const char *subject, const char *predicate, const char *object)
 {
     SordNode *s = sord_new_uri(g->model->world, (const uint8_t *)subject);
     SordNode *p = sord_new_uri(g->model->world, (const uint8_t *)predicate);
@@ -39,8 +52,10 @@ bool graph_add_triple(Graph *g, const char *subject, const char *predicate, cons
     return sord_add(g->model->model, (SordQuad){s, p, o, g->node});
 }
 
-
-size_t middleware_num_quads(Model *model)
+void middleware_graph_remove_triple(Graph *g, const char *subject, const char *predicate, const char *object)
 {
-    return sord_num_quads(model->model);
+    SordNode *s = sord_new_uri(g->model->world, (const uint8_t *)subject);
+    SordNode *p = sord_new_uri(g->model->world, (const uint8_t *)predicate);
+    SordNode *o = sord_new_uri(g->model->world, (const uint8_t *)object);
+    sord_remove(g->model->model, (SordQuad){s, p, o, g->node});
 }

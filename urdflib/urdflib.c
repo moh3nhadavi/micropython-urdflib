@@ -75,7 +75,7 @@ STATIC const mp_rom_map_elem_t mp_module_urdflib_globals_table[] = {
     {MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_urdflib)},
     {MP_ROM_QSTR(MP_QSTR_info), MP_ROM_PTR(&urdflib_info_obj)},
     {MP_ROM_QSTR(MP_QSTR_new_model), MP_ROM_PTR(&urdflib_model_new_obj)},
-    {MP_ROM_QSTR(MP_QSTR___len__), MP_ROM_PTR(&urdflib_length_obj)},
+    {MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&urdflib_length_obj)},
     {MP_OBJ_NEW_QSTR(MP_QSTR_Graph), (mp_obj_t)&urdflib_graph_type},
 };
 STATIC MP_DEFINE_CONST_DICT(mp_module_urdflib_globals, mp_module_urdflib_globals_table);

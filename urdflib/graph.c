@@ -71,6 +71,25 @@ STATIC void graph_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind
     sord_iter_free(iter);
 }
 
+STATIC mp_obj_t graph_len(mp_obj_t self_in)
+{
+    graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    int size = 0;
+    SordIter *iter = sord_begin(self->graph->model->model);
+    for (; !sord_iter_end(iter); sord_iter_next(iter))
+    {
+        SordQuad quad = {NULL, NULL, NULL, NULL};
+        sord_iter_get(iter, quad);
+        if (sord_node_equals(quad[3], self->graph->node))
+        {
+            size++;
+        }
+    }
+    sord_iter_free(iter);
+    return mp_obj_new_int(size);
+}
+MP_DEFINE_CONST_FUN_OBJ_1(graph_len_obj, graph_len);
+
 // right now, we only support adding uris
 STATIC mp_obj_t graph_add(mp_obj_t self_in, mp_obj_t triple_in)
 {
@@ -80,7 +99,10 @@ STATIC mp_obj_t graph_add(mp_obj_t self_in, mp_obj_t triple_in)
     {
         mp_raise_ValueError("Triple must be a tuple of length 3");
     }
-    if (graph_add_triple(self->graph, mp_obj_str_get_str(triple->items[0]), mp_obj_str_get_str(triple->items[1]), mp_obj_str_get_str(triple->items[2])))
+    if (middleware_graph_add_triple(self->graph,
+                                    mp_obj_str_get_str(triple->items[0]),
+                                    mp_obj_str_get_str(triple->items[1]),
+                                    mp_obj_str_get_str(triple->items[2])))
     {
         mp_print_str(&mp_plat_print, "Added to the graph\n");
     }
@@ -88,21 +110,31 @@ STATIC mp_obj_t graph_add(mp_obj_t self_in, mp_obj_t triple_in)
     {
         mp_print_str(&mp_plat_print, "Failed to add to the graph\n");
     }
-
-    // mp_print_str(&mp_plat_print, "Graph add:\nsubject: ");
-    // mp_obj_print_helper(&mp_plat_print, subject, PRINT_REPR);
-    // mp_print_str(&mp_plat_print, "\npredicate: ");
-    // mp_obj_print_helper(&mp_plat_print, predicate, PRINT_REPR);
-    // mp_print_str(&mp_plat_print, "\n");
-    // mp_print_str(&mp_plat_print, "\n object: ");
-    // mp_obj_print_helper(&mp_plat_print, object, PRINT_REPR);
-    // mp_printf(&mp_plat_print, "Graph add: %s %s %s\n", mp_obj_str_get_str(subject), mp_obj_str_get_str(predicate), mp_obj_str_get_str(object));
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_2(graph_add_obj, graph_add);
 
+STATIC mp_obj_t graph_remove(mp_obj_t self_in, mp_obj_t triple_in)
+{
+    graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_obj_tuple_t *triple = MP_OBJ_TO_PTR(triple_in);
+    if (triple->len != 3)
+    {
+        mp_raise_ValueError("Triple must be a tuple of length 3");
+    }
+    middleware_graph_remove_triple(self->graph,
+                                    mp_obj_str_get_str(triple->items[0]),
+                                    mp_obj_str_get_str(triple->items[1]),
+                                    mp_obj_str_get_str(triple->items[2]));
+    
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_2(graph_remove_obj, graph_remove);
+
 STATIC const mp_rom_map_elem_t graph_locals_dict_table[] = {
+    {MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&graph_len_obj)},
     {MP_ROM_QSTR(MP_QSTR_add), MP_ROM_PTR(&graph_add_obj)},
+    {MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&graph_remove_obj)},
 };
 STATIC MP_DEFINE_CONST_DICT(graph_locals_dict, graph_locals_dict_table);
 
