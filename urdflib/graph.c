@@ -57,21 +57,13 @@ STATIC void graph_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind
     (void)kind;
     graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
     mp_print_str(print, "URDFLib;Graph(");
-    // Graph *graph = self->graph;
-    // SordNode *node = graph->node;
-    // // mp_obj_new_str(sord_node_get_string(node));
-    // GET_STR_DATA_LEN(sord_node_get_string(node), str, str_len);
-    // char out_str[str_len];
-    // strcpy(out_str, (char *)str);
-    // mp_obj_print_helper(print, mp_obj_new_str(out_str,str_len), PRINT_REPR);
     mp_print_str(print, ")\n");
-    Graph *graph = self->graph;
-    SordIter *iter = sord_begin(graph->model->model);
+    SordIter *iter = sord_begin(self->graph->model->model);
     for (; !sord_iter_end(iter); sord_iter_next(iter))
     {
         SordQuad quad = {NULL, NULL, NULL, NULL};
         sord_iter_get(iter, quad);
-        if (sord_node_equals(quad[3], graph->node))
+        if (sord_node_equals(quad[3], self->graph->node))
         {
             printf("<%s> <%s> <%s> <%s>\n", sord_node_get_string(quad[0]), sord_node_get_string(quad[1]), sord_node_get_string(quad[2]), sord_node_get_string(quad[3]));
         }
@@ -79,6 +71,7 @@ STATIC void graph_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind
     sord_iter_free(iter);
 }
 
+// right now, we only support adding uris
 STATIC mp_obj_t graph_add(mp_obj_t self_in, mp_obj_t triple_in)
 {
     graph_obj_t *self = MP_OBJ_TO_PTR(self_in);

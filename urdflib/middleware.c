@@ -38,3 +38,9 @@ bool graph_add_triple(Graph *g, const char *subject, const char *predicate, cons
     SordNode *o = sord_new_uri(g->model->world, (const uint8_t *)object);
     return sord_add(g->model->model, (SordQuad){s, p, o, g->node});
 }
+
+
+size_t middleware_num_quads(Model *model)
+{
+    return sord_num_quads(model->model);
+}
