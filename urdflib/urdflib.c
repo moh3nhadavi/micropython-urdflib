@@ -6,30 +6,11 @@
 
 #include "../lib/sord/sord.h"
 
+#include "terms.h"
 #include "graph.h"
 
 #include "middleware.h"
 
-// void graph_add_triple(Graph *g, const char *subject, const char *predicate, const char *object)
-// {
-//     SordNode *s = sord_new_uri(g->world, (const uint8_t *)subject);
-//     SordNode *p = sord_new_uri(g->world, (const uint8_t *)predicate);
-//     SordNode *o = sord_new_uri(g->world, (const uint8_t *)object);
-//     sord_add(g->model, (SordQuad){s, p, o, NULL});
-// }
-
-// void graph_add_literal(Graph *g, const char *subject, const char *predicate, const char *object, const char *lang, const char *datatype)
-// {
-//     SordNode *s = sord_new_uri(g->world, (const uint8_t *)subject);
-//     SordNode *p = sord_new_uri(g->world, (const uint8_t *)predicate);
-
-//     SordNode *datatype2 = sord_new_uri(g->world, (const uint8_t *)"http://www.w3.org/2001/XMLSchema#string");
-//     // (SordWorld *world, SordNode *datatype, const uint8_t *str, const char *lang)
-//     // SerdNode *o = serd_node_new_literal((const uint8_t *)object, lang ? (const uint8_t *)lang : NULL, datatype ? (const uint8_t *)datatype : NULL);
-//     SordNode *o = sord_new_literal(g->world, datatype2, (const uint8_t *) object, lang);
-//     // sord_add(g->model, (SordQuad){s, p, (SordNode *)o, NULL});
-//     sord_add(g->model, (SordQuad){s, p, o, NULL});
-// }
 
 // void graph_serialize(Graph *g, const char *filename, SerdSyntax syntax)
 // {
@@ -76,7 +57,9 @@ STATIC const mp_rom_map_elem_t mp_module_urdflib_globals_table[] = {
     {MP_ROM_QSTR(MP_QSTR_info), MP_ROM_PTR(&urdflib_info_obj)},
     {MP_ROM_QSTR(MP_QSTR_new_model), MP_ROM_PTR(&urdflib_model_new_obj)},
     {MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&urdflib_length_obj)},
+    {MP_ROM_QSTR(MP_QSTR_BNode),(mp_obj_t)&urdflib_bnode_type},
     {MP_OBJ_NEW_QSTR(MP_QSTR_Graph), (mp_obj_t)&urdflib_graph_type},
+
 };
 STATIC MP_DEFINE_CONST_DICT(mp_module_urdflib_globals, mp_module_urdflib_globals_table);
 

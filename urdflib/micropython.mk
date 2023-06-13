@@ -33,7 +33,12 @@ SRC_USERMOD += $(URDFLIB_LIB_DIR)/sord/syntax.c
 
 
 # My Files
+# middleware
+SRC_USERMOD += $(URDFLIB_DIR)/middleware/terms.c
+# root
 SRC_USERMOD += $(URDFLIB_DIR)/urdflib.c
+SRC_USERMOD += $(URDFLIB_DIR)/globals.c
+SRC_USERMOD += $(URDFLIB_DIR)/terms.c
 SRC_USERMOD += $(URDFLIB_DIR)/graph.c
 SRC_USERMOD += $(URDFLIB_DIR)/middleware.c
 
