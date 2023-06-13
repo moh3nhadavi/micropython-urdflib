@@ -7,7 +7,6 @@
 #include "py/obj.h"
 #include "py/objstr.h"
 
-#include "../lib/sord/sord.h"
 #include "globals.h"
 #include "terms.h"
 #include "middleware/terms.h"
@@ -19,6 +18,14 @@ typedef struct _bnode_obj_t
 } bnode_obj_t;
 
 const mp_obj_type_t urdflib_bnode_type;
+
+typedef struct _uriref_obj_t
+{
+    mp_obj_base_t base;
+    URIRef *uri_ref;
+} uriref_obj_t;
+
+const mp_obj_type_t urdflib_uriref_type;
 
 char *_generateRandomString(int length)
 {
@@ -81,3 +88,52 @@ const mp_obj_type_t urdflib_bnode_type = {
     .make_new = bnode_make_new,
     .locals_dict = (mp_obj_dict_t *)&bnode_locals_dict,
 };
+
+
+STATIC mp_obj_t uriref_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args)
+{
+    // check the number of arguments
+    mp_arg_check_num(n_args, n_kw, 1, 2, true);
+
+    uriref_obj_t *self = m_new_obj(uriref_obj_t);
+    self->base.type = &urdflib_uriref_type;
+    urdflib_globals_init0();
+    const char *uri = mp_obj_str_get_str(args[0]);
+    if (n_args == 2)
+    {
+        const char *base = mp_obj_str_get_str(args[1]);
+        self->uri_ref = middleware_terms_uriref_new(uri, base);
+    }
+    else
+    {
+        self->uri_ref = middleware_terms_uriref_new(uri, NULL);
+    }
+    return MP_OBJ_FROM_PTR(self);
+}
+
+STATIC void uriref_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind_t kind)
+{
+    (void)kind;
+    uriref_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_print_str(print, "URDFLib;URIRef(");
+    mp_print_str(print, (char *)sord_node_get_string(self->uri_ref->node));
+    mp_print_str(print, ")");
+}
+
+
+STATIC const mp_rom_map_elem_t uriref_locals_dict_table[] = {
+    // {MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&graph_len_obj)},
+};
+STATIC MP_DEFINE_CONST_DICT(uriref_locals_dict, uriref_locals_dict_table);
+
+const mp_obj_type_t urdflib_uriref_type = {
+    {&mp_type_type},
+    .name = MP_QSTR_urdflib,
+    .print = uriref_print,
+    .make_new = uriref_make_new,
+    .locals_dict = (mp_obj_dict_t *)&uriref_locals_dict,
+};
+
+
+
+

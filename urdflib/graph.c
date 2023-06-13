@@ -21,7 +21,7 @@ const mp_obj_type_t urdflib_graph_type;
 STATIC mp_obj_t graph_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args)
 {
     // check the number of arguments
-    mp_arg_check_num(n_args, n_kw, 0, 2, true);
+    mp_arg_check_num(n_args, n_kw, 2, 2, true);
 
     graph_obj_t *self = m_new_obj(graph_obj_t);
     self->base.type = &urdflib_graph_type;

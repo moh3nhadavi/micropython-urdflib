@@ -13,3 +13,4 @@ typedef struct {
 } BNode;
 
 BNode *middleware_terms_bnode_new(const char *str);
+URIRef *middleware_terms_uriref_new(const char *str, const char *base);
