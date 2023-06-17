@@ -3,3 +3,4 @@
 
 extern const mp_obj_type_t urdflib_bnode_type;
 extern const mp_obj_type_t urdflib_uriref_type;
+extern const mp_obj_type_t urdflib_literal_type;

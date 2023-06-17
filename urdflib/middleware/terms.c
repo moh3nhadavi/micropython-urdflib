@@ -23,3 +23,25 @@ URIRef *middleware_terms_uriref_new(const char *str, const char *base_uri)
     }
     return uri_ref;
 }
+
+Literal *middleware_terms_literal_new(const char *str, URIRef *datatype, const char *lang)
+{
+    mp_print_str(&mp_plat_print, "middleware\n");
+    mp_print_str(&mp_plat_print, str);
+    Literal *literal = (Literal *)malloc(sizeof(Literal));
+    mp_print_str(&mp_plat_print, "--middleware--\n");
+    literal->node = sord_new_literal(world->world,datatype->node, (const uint8_t *)str, lang);
+    // if (lang != NULL)
+    // {
+    //     literal->node = sord_new_literal(world->world, (const uint8_t *)str, (const uint8_t *)lang, NULL);
+    // }
+    // else if (datatype != NULL)
+    // {
+    //     literal->node = sord_new_literal(world->world, (const uint8_t *)str, NULL, (const uint8_t *)datatype);
+    // }
+    // else
+    // {
+    //     literal->node = sord_new_literal(world->world, (const uint8_t *)str, NULL, NULL);
+    // }
+    return literal;
+}
