@@ -186,13 +186,12 @@ STATIC mp_obj_t literal_make_new(const mp_obj_type_t *type, size_t n_args, size_
     static const mp_arg_t allowed_args[] = {
         {MP_QSTR_value, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL}},
         {MP_QSTR_datatype, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_PTR(&urdflib_uriref_type)}},
-        {MP_QSTR_language, MP_ARG_OBJ, {.u_bool = false}},
+        {MP_QSTR_language, MP_ARG_OBJ, {.u_obj = "0"}},
     };
 
     mp_arg_val_t args_parsed[MP_ARRAY_SIZE(allowed_args)];
     mp_arg_parse_all_kw_array(n_args, n_kw, args, MP_ARRAY_SIZE(allowed_args), allowed_args, args_parsed);
     
-    mp_print_str(&mp_plat_print, "1");
     mp_obj_t tempVal = args_parsed[ARG_value].u_obj;
     const char *value = NULL;
     if (strcmp(mp_obj_get_type_str(args_parsed[ARG_value].u_obj), "int") == 0)
@@ -217,20 +216,16 @@ STATIC mp_obj_t literal_make_new(const mp_obj_type_t *type, size_t n_args, size_
     }
 
     URIRef *datatype = NULL;
-    // mp_print_str(&mp_plat_print, mp_obj_get_type_str(args_parsed[ARG_datatype].u_obj));
-    // if (strcmp(mp_obj_get_type_str(args_parsed[ARG_datatype].u_obj), "URIRef") == 0)
-    // {
-    //     mp_print_str(&mp_plat_print, "8");
-    //     datatype = args_parsed[ARG_datatype].u_obj;
-    // }
+    if (strcmp(mp_obj_get_type_str(args_parsed[ARG_datatype].u_obj), "URIRef") == 0)
+    {
+        datatype = args_parsed[ARG_datatype].u_obj;
+    }
 
     const char *language = NULL;
-    // mp_print_str(&mp_plat_print, mp_obj_get_type_str(args_parsed[ARG_language].u_obj));
-    // if (strcmp(mp_obj_get_type_str(args_parsed[ARG_language].u_obj), "str") == 0)
-    // {
-    //     mp_print_str(&mp_plat_print, "9");
-    //     language = mp_obj_str_get_str(args_parsed[ARG_language].u_obj);
-    // }
+    if (strcmp(mp_obj_get_type_str(args_parsed[ARG_language].u_obj), "str") == 0)
+    {
+        language = mp_obj_str_get_str(args_parsed[ARG_language].u_obj);
+    }
 
     self->literal = middleware_terms_literal_new(value, datatype, language);
     return MP_OBJ_FROM_PTR(self);

@@ -27,7 +27,6 @@ URIRef *middleware_terms_uriref_new(const char *str, const char *base_uri)
 Literal *middleware_terms_literal_new(const char *str, URIRef *datatype, const char *lang)
 {
     mp_print_str(&mp_plat_print, "middleware\n");
-    mp_print_str(&mp_plat_print, str);
     Literal *literal = (Literal *)malloc(sizeof(Literal));
     mp_print_str(&mp_plat_print, "--middleware--\n");
     literal->node = sord_new_literal(world->world,datatype->node, (const uint8_t *)str, lang);
