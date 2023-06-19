@@ -185,8 +185,9 @@ STATIC mp_obj_t literal_make_new(const mp_obj_type_t *type, size_t n_args, size_
 
     static const mp_arg_t allowed_args[] = {
         {MP_QSTR_value, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL}},
-        {MP_QSTR_datatype, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_PTR(&urdflib_uriref_type)}},
-        {MP_QSTR_language, MP_ARG_OBJ, {.u_obj = "0"}},
+        // {MP_QSTR_datatype, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_PTR(&urdflib_uriref_type)}},
+        {MP_QSTR_datatype, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL}},
+        {MP_QSTR_language, MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL}},
     };
 
     mp_arg_val_t args_parsed[MP_ARRAY_SIZE(allowed_args)];
@@ -215,17 +216,31 @@ STATIC mp_obj_t literal_make_new(const mp_obj_type_t *type, size_t n_args, size_
         mp_raise_ValueError("Unknown type");
     }
 
-    URIRef *datatype = NULL;
-    if (strcmp(mp_obj_get_type_str(args_parsed[ARG_datatype].u_obj), "URIRef") == 0)
-    {
-        datatype = args_parsed[ARG_datatype].u_obj;
+    // TODO: Accept the datatype as a URIRef object
+    // URIRef *datatype = NULL;
+    const char *datatype = NULL;
+    if(mp_obj_is_str(args_parsed[ARG_datatype].u_obj)) {
+        datatype = mp_obj_str_get_str(args_parsed[ARG_datatype].u_obj);
     }
+    // if(mp_obj_is_type(args_parsed[ARG_datatype].u_obj, &urdflib_uriref_type)) {
+    //     datatype = MP_OBJ_TO_PTR(args_parsed[ARG_datatype].u_obj);
+    //     // datatype = get_uriref_obj(args_parsed[ARG_datatype].u_obj);
+    // }
+    // else {
+    //     datatype = NULL;
+    // }
 
     const char *language = NULL;
-    if (strcmp(mp_obj_get_type_str(args_parsed[ARG_language].u_obj), "str") == 0)
-    {
+    if(args_parsed[ARG_language].u_obj != MP_OBJ_NULL && mp_obj_is_str(args_parsed[ARG_language].u_obj)) {
         language = mp_obj_str_get_str(args_parsed[ARG_language].u_obj);
     }
+
+    // const char *language = NULL;
+    // if (strcmp(mp_obj_get_type_str(args_parsed[ARG_language].u_obj), "str") == 0) 
+    // {
+    //     mp_print_str(&mp_plat_print, "Language:\n");
+    //     language = mp_obj_str_get_str(args_parsed[ARG_language].u_obj);
+    // }
 
     self->literal = middleware_terms_literal_new(value, datatype, language);
     return MP_OBJ_FROM_PTR(self);
@@ -237,6 +252,12 @@ STATIC void literal_print(const mp_print_t *print, mp_obj_t self_in, mp_print_ki
     literal_obj_t *self = MP_OBJ_TO_PTR(self_in);
     mp_print_str(print, "URDFLib;Literal(");
     mp_print_str(print, (char *)sord_node_get_string(self->literal->node));
+    mp_print_str(print, ",");
+    mp_print_str(print, (char *)sord_node_get_string(sord_node_get_datatype(self->literal->node)));
+    if(sord_node_get_language(self->literal->node) != NULL){
+        mp_print_str(print, ",");
+        mp_print_str(print, sord_node_get_language(self->literal->node));    
+    }
     mp_print_str(print, ")");
 }
 
