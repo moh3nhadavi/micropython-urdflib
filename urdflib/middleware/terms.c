@@ -24,11 +24,9 @@ URIRef *middleware_terms_uriref_new(const char *str, const char *base_uri)
     return uri_ref;
 }
 
-// Literal *middleware_terms_literal_new(const char *str, URIRef *datatype, const char *lang)
-Literal *middleware_terms_literal_new(const char *str, const char *datatype, const char *lang)
+Literal *middleware_terms_literal_new(const char *str, SordNode *datatype, const char *lang)
 {
     Literal *literal = (Literal *)malloc(sizeof(Literal));
-    URIRef *datatype_obj = middleware_terms_uriref_new(datatype, NULL);
-    literal->node = sord_new_literal(world->world,datatype_obj->node, (const uint8_t *)str, lang);
+    literal->node = sord_new_literal(world->world,datatype, (const uint8_t *)str, lang);
     return literal;
 }

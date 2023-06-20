@@ -14,5 +14,4 @@ typedef struct {
 
 BNode *middleware_terms_bnode_new(const char *str);
 URIRef *middleware_terms_uriref_new(const char *str, const char *base);
-// Literal *middleware_terms_literal_new(const char *str, URIRef *datatype, const char *lang);
-Literal *middleware_terms_literal_new(const char *str, const char *datatype, const char *lang);
+Literal *middleware_terms_literal_new(const char *str, SordNode *datatype, const char *lang);

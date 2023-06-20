@@ -185,8 +185,7 @@ STATIC mp_obj_t literal_make_new(const mp_obj_type_t *type, size_t n_args, size_
 
     static const mp_arg_t allowed_args[] = {
         {MP_QSTR_value, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL}},
-        // {MP_QSTR_datatype, MP_ARG_OBJ, {.u_rom_obj = MP_ROM_PTR(&urdflib_uriref_type)}},
-        {MP_QSTR_datatype, MP_ARG_REQUIRED | MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL}},
+        {MP_QSTR_datatype, MP_ARG_KW_ONLY | MP_ARG_OBJ, {.u_rom_obj = MP_ROM_NONE}},
         {MP_QSTR_language, MP_ARG_OBJ, {.u_obj = MP_OBJ_NULL}},
     };
 
@@ -216,33 +215,23 @@ STATIC mp_obj_t literal_make_new(const mp_obj_type_t *type, size_t n_args, size_
         mp_raise_ValueError("Unknown type");
     }
 
-    // TODO: Accept the datatype as a URIRef object
-    // URIRef *datatype = NULL;
-    const char *datatype = NULL;
-    if(mp_obj_is_str(args_parsed[ARG_datatype].u_obj)) {
-        datatype = mp_obj_str_get_str(args_parsed[ARG_datatype].u_obj);
+
+    URIRef *_datatype = NULL;
+    if(mp_obj_is_type(args_parsed[ARG_datatype].u_obj, &urdflib_uriref_type)) {
+        uriref_obj_t *dtype = MP_OBJ_TO_PTR(args_parsed[ARG_datatype].u_obj);
+        _datatype = dtype->uri_ref;
     }
-    // if(mp_obj_is_type(args_parsed[ARG_datatype].u_obj, &urdflib_uriref_type)) {
-    //     datatype = MP_OBJ_TO_PTR(args_parsed[ARG_datatype].u_obj);
-    //     // datatype = get_uriref_obj(args_parsed[ARG_datatype].u_obj);
-    // }
-    // else {
-    //     datatype = NULL;
-    // }
+    else {
+        mp_raise_ValueError("Unknown type");
+    }
 
     const char *language = NULL;
     if(args_parsed[ARG_language].u_obj != MP_OBJ_NULL && mp_obj_is_str(args_parsed[ARG_language].u_obj)) {
         language = mp_obj_str_get_str(args_parsed[ARG_language].u_obj);
     }
 
-    // const char *language = NULL;
-    // if (strcmp(mp_obj_get_type_str(args_parsed[ARG_language].u_obj), "str") == 0) 
-    // {
-    //     mp_print_str(&mp_plat_print, "Language:\n");
-    //     language = mp_obj_str_get_str(args_parsed[ARG_language].u_obj);
-    // }
 
-    self->literal = middleware_terms_literal_new(value, datatype, language);
+    self->literal = middleware_terms_literal_new(value, _datatype->node, language);
     return MP_OBJ_FROM_PTR(self);
 }
 
