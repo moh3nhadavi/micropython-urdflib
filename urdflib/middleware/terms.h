@@ -1,5 +1,3 @@
-#include "../terms.h"
-
 typedef struct {
     SordNode *node;
 } URIRef;

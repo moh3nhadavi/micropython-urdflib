@@ -9,31 +9,7 @@
 
 #include "globals.h"
 #include "terms.h"
-#include "middleware/terms.h"
 
-typedef struct _bnode_obj_t
-{
-    mp_obj_base_t base;
-    BNode *bnode;
-} bnode_obj_t;
-
-const mp_obj_type_t urdflib_bnode_type;
-
-typedef struct _uriref_obj_t
-{
-    mp_obj_base_t base;
-    URIRef *uri_ref;
-} uriref_obj_t;
-
-const mp_obj_type_t urdflib_uriref_type;
-
-typedef struct _literal_obj_t
-{
-    mp_obj_base_t base;
-    Literal *literal;
-} literal_obj_t;
-
-const mp_obj_type_t urdflib_literal_type;
 
 char *_generateRandomString(int length)
 {
@@ -82,7 +58,6 @@ STATIC void bnode_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind
     mp_print_str(print, "URDFLib;BNode(");
     mp_print_str(print, (char *)sord_node_get_string(self->bnode->node));
     mp_print_str(print, ")");
-    mp_print_str(print, mp_obj_get_type_str(self_in));
 }
 
 STATIC const mp_rom_map_elem_t bnode_locals_dict_table[] = {
