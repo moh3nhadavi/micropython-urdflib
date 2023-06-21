@@ -53,17 +53,6 @@ STATIC void graph_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind
     mp_print_str(print, "URDFLib;Graph(");
     mp_print_str(print, (const char *)sord_node_get_string(self->graph->context));
     mp_print_str(print, ")");
-    // SordIter *iter = sord_begin(self->graph->model->model);
-    // for (; !sord_iter_end(iter); sord_iter_next(iter))
-    // {
-    //     SordQuad quad = {NULL, NULL, NULL, NULL};
-    //     sord_iter_get(iter, quad);
-    //     if (sord_node_equals(quad[3], self->graph->node))
-    //     {
-    //         printf("<%s> <%s> <%s> <%s>\n", sord_node_get_string(quad[0]), sord_node_get_string(quad[1]), sord_node_get_string(quad[2]), sord_node_get_string(quad[3]));
-    //     }
-    // }
-    // sord_iter_free(iter);
 }
 
 STATIC mp_obj_t graph_len(mp_obj_t self_in)

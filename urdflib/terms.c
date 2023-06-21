@@ -215,12 +215,12 @@ STATIC void literal_print(const mp_print_t *print, mp_obj_t self_in, mp_print_ki
     (void)kind;
     literal_obj_t *self = MP_OBJ_TO_PTR(self_in);
     mp_print_str(print, "URDFLib;Literal(");
-    mp_print_str(print, (char *)sord_node_get_string(self->literal->node));
+    mp_print_str(print, middleware_terms_literal_value(self->literal));
     mp_print_str(print, ",");
     mp_print_str(print, (char *)sord_node_get_string(sord_node_get_datatype(self->literal->node)));
     if(sord_node_get_language(self->literal->node) != NULL){
         mp_print_str(print, ",");
-        mp_print_str(print, sord_node_get_language(self->literal->node));    
+        mp_print_str(print, middleware_terms_literal_language(self->literal));    
     }
     mp_print_str(print, ")");
 }
@@ -242,9 +242,15 @@ STATIC mp_obj_t literal_language(mp_obj_t self_in){
         return mp_obj_new_str(lang, strlen(lang));
     }
     return mp_const_none;
-    // return (middleware_terms_literal_language(self->literal));
 }
 MP_DEFINE_CONST_FUN_OBJ_1(literal_language_obj, literal_language);
+
+STATIC mp_obj_t literal_value(mp_obj_t self_in){
+    literal_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    char *value = middleware_terms_literal_value(self->literal);
+    return mp_obj_new_str(value, strlen(value));
+}
+MP_DEFINE_CONST_FUN_OBJ_1(literal_value_obj, literal_value);
 
 STATIC void literal_property(mp_obj_t self_in, qstr attribute, mp_obj_t *destination)
 {
@@ -252,12 +258,15 @@ STATIC void literal_property(mp_obj_t self_in, qstr attribute, mp_obj_t *destina
         destination[0] = literal_datatype(self_in);
    }else if(attribute == MP_QSTR_language){
         destination[0] = literal_language(self_in);
+   }else if(attribute == MP_QSTR_value){
+        destination[0] = literal_value(self_in);
    }
 }
 
 STATIC const mp_rom_map_elem_t literal_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_datatype), MP_ROM_PTR(&literal_datatype_obj)},
     {MP_ROM_QSTR(MP_QSTR_language), MP_ROM_PTR(&literal_language_obj)},
+    {MP_ROM_QSTR(MP_QSTR_value), MP_ROM_PTR(&literal_value_obj)},
 };
 STATIC MP_DEFINE_CONST_DICT(literal_locals_dict, literal_locals_dict_table);
 
