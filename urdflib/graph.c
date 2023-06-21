@@ -146,6 +146,12 @@ STATIC mp_obj_t graph_remove(mp_obj_t self_in, mp_obj_t triple_in)
 }
 MP_DEFINE_CONST_FUN_OBJ_2(graph_remove_obj, graph_remove);
 
+// STATIC mp_obj_t graph_subjects(mp_obj_t self_in)
+// {
+//     // graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+//     return mp_const_none;
+// }
+
 STATIC const mp_rom_map_elem_t graph_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&graph_len_obj)},
     {MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&graph_close_obj)},

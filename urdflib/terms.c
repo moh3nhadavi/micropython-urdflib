@@ -225,8 +225,39 @@ STATIC void literal_print(const mp_print_t *print, mp_obj_t self_in, mp_print_ki
     mp_print_str(print, ")");
 }
 
+
+STATIC mp_obj_t literal_datatype(mp_obj_t self_in) {
+    literal_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    uriref_obj_t *uri_ref = m_new_obj(uriref_obj_t);
+    uri_ref->base.type = &urdflib_uriref_type;
+    uri_ref->uri_ref = middleware_terms_literal_datatype(self->literal);
+    return MP_OBJ_FROM_PTR(uri_ref);
+}
+MP_DEFINE_CONST_FUN_OBJ_1(literal_datatype_obj, literal_datatype);
+
+STATIC mp_obj_t literal_language(mp_obj_t self_in){
+    literal_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    char *lang = middleware_terms_literal_language(self->literal);
+    if(lang != NULL){
+        return mp_obj_new_str(lang, strlen(lang));
+    }
+    return mp_const_none;
+    // return (middleware_terms_literal_language(self->literal));
+}
+MP_DEFINE_CONST_FUN_OBJ_1(literal_language_obj, literal_language);
+
+STATIC void literal_property(mp_obj_t self_in, qstr attribute, mp_obj_t *destination)
+{
+   if(attribute == MP_QSTR_datatype){
+        destination[0] = literal_datatype(self_in);
+   }else if(attribute == MP_QSTR_language){
+        destination[0] = literal_language(self_in);
+   }
+}
+
 STATIC const mp_rom_map_elem_t literal_locals_dict_table[] = {
-    // {MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&graph_len_obj)},
+    {MP_ROM_QSTR(MP_QSTR_datatype), MP_ROM_PTR(&literal_datatype_obj)},
+    {MP_ROM_QSTR(MP_QSTR_language), MP_ROM_PTR(&literal_language_obj)},
 };
 STATIC MP_DEFINE_CONST_DICT(literal_locals_dict, literal_locals_dict_table);
 
@@ -235,5 +266,6 @@ const mp_obj_type_t urdflib_literal_type = {
     .name = MP_QSTR_Literal,
     .print = literal_print,
     .make_new = literal_make_new,
+    .attr = literal_property,
     .locals_dict = (mp_obj_dict_t *)&literal_locals_dict,
 };

@@ -2,6 +2,7 @@
 #include "../../lib/sord/sord.h"
 #include "../globals.h"
 #include "graph.h"
+#include "terms.h"
 
 SordModel *_middleware_new_model()
 {

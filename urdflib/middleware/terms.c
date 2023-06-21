@@ -30,3 +30,15 @@ Literal *middleware_terms_literal_new(const char *str, SordNode *datatype, const
     literal->node = sord_new_literal(world->world,datatype, (const uint8_t *)str, lang);
     return literal;
 }
+
+URIRef *middleware_terms_literal_datatype(Literal *literal)
+{
+    URIRef *uri_ref = (URIRef *)malloc(sizeof(URIRef));
+    uri_ref->node = sord_node_get_datatype(literal->node);
+    return uri_ref;
+}
+
+char *middleware_terms_literal_language(Literal *literal)
+{
+    return (char *)sord_node_get_language(literal->node);
+}
