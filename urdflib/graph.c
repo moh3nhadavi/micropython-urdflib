@@ -19,7 +19,7 @@ STATIC mp_obj_t graph_make_new(const mp_obj_type_t *type, size_t n_args, size_t 
     graph_obj_t *self = m_new_obj(graph_obj_t);
     self->base.type = &urdflib_graph_type;
     urdflib_globals_init0();
-      
+
     if (strcmp(mp_obj_get_type_str(args[0]), "bool") == 0)
     {
         bnode_obj_t *_bnode = m_new_obj(bnode_obj_t);
@@ -67,11 +67,110 @@ STATIC void graph_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind
     // sord_iter_free(iter);
 }
 
+STATIC mp_obj_t graph_len(mp_obj_t self_in)
+{
+    graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    return mp_obj_new_int(middleware_graph_num_quads(self->graph));
+}
+MP_DEFINE_CONST_FUN_OBJ_1(graph_len_obj, graph_len);
+
+STATIC mp_obj_t graph_close(mp_obj_t self_in)
+{
+    graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    middleware_graph_close(self->graph);
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_1(graph_close_obj, graph_close);
+
+STATIC mp_obj_t graph_add(mp_obj_t self_in, mp_obj_t triple_in)
+{
+    graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_obj_tuple_t *triple = MP_OBJ_TO_PTR(triple_in);
+    if (triple->len != 3)
+    {
+        mp_raise_ValueError("Triple must be a tuple of length 3");
+    }
+
+    SordNode *subject, *predicate, *object;
+    for (int8_t i = 0; i < 3; i++)
+    {
+        if(strcmp(mp_obj_get_type_str(triple->items[i]), "URIRef") != 0)
+        {
+            uriref_obj_t *_uriref = MP_OBJ_TO_PTR(triple->items[i]);
+            switch (i)
+            {
+            case 0:
+                subject = _uriref->uri_ref->node;
+                break;
+            case 1:
+                predicate = _uriref->uri_ref->node;
+                break;
+            case 2:
+                object = _uriref->uri_ref->node;
+                break;
+            default:
+                break;
+            }
+        }else if(strcmp(mp_obj_get_type_str(triple->items[i]), "BNode") != 0)
+        {
+            bnode_obj_t *_bnode = MP_OBJ_TO_PTR(triple->items[i]);
+            switch (i)
+            {
+            case 0:
+                subject = _bnode->bnode->node;
+                break;
+            case 1:
+                predicate = _bnode->bnode->node;
+                break;
+            case 2:
+                object = _bnode->bnode->node;
+                break;
+            default:
+                break;
+            }
+        }
+        else if(strcmp(mp_obj_get_type_str(triple->items[i]), "Literal") != 0)
+        {
+            literal_obj_t *_literal = MP_OBJ_TO_PTR(triple->items[i]);
+            switch (i)
+            {
+            case 0:
+                subject = _literal->literal->node;
+                break;
+            case 1:
+                predicate = _literal->literal->node;
+                break;
+            case 2:
+                object = _literal->literal->node;
+                break;
+            default:
+                break;
+            }
+        }
+        else
+        {
+            mp_raise_ValueError("Wrong type of subject");
+        }
+    }
+    
+    
+    if (middleware_graph_add(self->graph, subject, predicate, object))
+    {
+        mp_print_str(&mp_plat_print, "Added to the graph\n");
+    }
+    else
+    {
+        mp_print_str(&mp_plat_print, "Failed to add to the graph\n");
+    }
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_2(graph_add_obj, graph_add);
+
 STATIC const mp_rom_map_elem_t graph_locals_dict_table[] = {
-    // {MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&graph_len_obj)},
-    // {MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&graph_close_obj)},
-    // {MP_ROM_QSTR(MP_QSTR_add), MP_ROM_PTR(&graph_add_obj)},
-    // {MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&graph_remove_obj)},
+    {MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&graph_len_obj)},
+    {MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&graph_close_obj)},
+    {MP_ROM_QSTR(MP_QSTR_add), MP_ROM_PTR(&graph_add_obj)},
+    {MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&graph_remove_obj)},
 
     // {MP_ROM_QSTR(MP_QSTR_subjects), MP_ROM_PTR(&graph_subjects_obj)},
 };

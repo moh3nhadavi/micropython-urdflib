@@ -23,3 +23,19 @@ Dataset *middleware_graph_dataset_new()
     return d;
 }
 
+size_t middleware_graph_num_quads(Graph *g)
+{
+    return sord_num_quads(g->model);
+}
+
+void middleware_graph_close(Graph *g)
+{
+    sord_free(g->model);
+    free(g);
+}
+
+bool middleware_graph_add(Graph *g, SordNode *subject, SordNode *predicate, SordNode *object)
+{
+    return sord_add(g->model, (SordQuad){subject, predicate, object, g->context});
+}
+
