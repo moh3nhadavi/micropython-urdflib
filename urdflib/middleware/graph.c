@@ -39,3 +39,8 @@ bool middleware_graph_add(Graph *g, SordNode *subject, SordNode *predicate, Sord
     return sord_add(g->model, (SordQuad){subject, predicate, object, g->context});
 }
 
+void middleware_graph_remove(Graph *g, SordNode *subject, SordNode *predicate, SordNode *object)
+{
+    sord_remove(g->model, (SordQuad){subject, predicate, object, g->context});
+}
+

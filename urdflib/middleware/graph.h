@@ -14,3 +14,4 @@ extern Dataset *middleware_graph_dataset_new();
 extern size_t middleware_graph_num_quads(Graph *g);
 extern void middleware_graph_close(Graph *g);
 extern bool middleware_graph_add(Graph *g, SordNode *subject, SordNode *predicate, SordNode *object);
+extern void middleware_graph_remove(Graph *g, SordNode *subject, SordNode *predicate, SordNode *object);

@@ -84,9 +84,6 @@ MP_DEFINE_CONST_FUN_OBJ_1(graph_close_obj, graph_close);
 SordNode** _extractTriple(mp_obj_tuple_t *triple_in)
 {
     SordNode** nodes = malloc(3 * sizeof(SordNode*));
-    // SordNode* nodes = malloc(3 * sizeof(struct SordNodeImpl));
-    // SordNode* nodes = calloc(3, sizeof(SordNode));
-    // SordNode* nodes = malloc(3 * sizeof(*nodes));
     for (int8_t i = 0; i < 3; i++)
     {
         if (strcmp(mp_obj_get_type_str(triple_in->items[i]), "URIRef") != 0)
@@ -134,11 +131,26 @@ STATIC mp_obj_t graph_add(mp_obj_t self_in, mp_obj_t triple_in)
 }
 MP_DEFINE_CONST_FUN_OBJ_2(graph_add_obj, graph_add);
 
+STATIC mp_obj_t graph_remove(mp_obj_t self_in, mp_obj_t triple_in)
+{
+    graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_obj_tuple_t *triple = MP_OBJ_TO_PTR(triple_in);
+    if (triple->len != 3)
+    {
+        mp_raise_ValueError("Triple must be a tuple of length 3");
+    }
+    SordNode** nodes= _extractTriple(triple);
+    middleware_graph_remove(self->graph, nodes[0], nodes[1], nodes[2]);
+    
+    return mp_const_none;
+}
+MP_DEFINE_CONST_FUN_OBJ_2(graph_remove_obj, graph_remove);
+
 STATIC const mp_rom_map_elem_t graph_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&graph_len_obj)},
     {MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&graph_close_obj)},
     {MP_ROM_QSTR(MP_QSTR_add), MP_ROM_PTR(&graph_add_obj)},
-    // {MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&graph_remove_obj)},
+    {MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&graph_remove_obj)},
 
     // {MP_ROM_QSTR(MP_QSTR_subjects), MP_ROM_PTR(&graph_subjects_obj)},
 };
