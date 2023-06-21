@@ -10,7 +10,6 @@
 #include "graph.h"
 #include "terms.h"
 
-
 STATIC mp_obj_t graph_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args)
 {
     // check the number of arguments
@@ -29,12 +28,12 @@ STATIC mp_obj_t graph_make_new(const mp_obj_type_t *type, size_t n_args, size_t 
     }
     else
     {
-        if(mp_obj_is_type(args[0], &urdflib_uriref_type))
+        if (mp_obj_is_type(args[0], &urdflib_uriref_type))
         {
             uriref_obj_t *_uriref = MP_OBJ_TO_PTR(args[0]);
             self->graph = middleware_graph_graph_new(_uriref->uri_ref->node);
         }
-        else if(mp_obj_is_type(args[0], &urdflib_bnode_type))
+        else if (mp_obj_is_type(args[0], &urdflib_bnode_type))
         {
             bnode_obj_t *_bnode = MP_OBJ_TO_PTR(args[0]);
             self->graph = middleware_graph_graph_new(_bnode->bnode->node);
@@ -82,6 +81,37 @@ STATIC mp_obj_t graph_close(mp_obj_t self_in)
 }
 MP_DEFINE_CONST_FUN_OBJ_1(graph_close_obj, graph_close);
 
+SordNode** _extractTriple(mp_obj_tuple_t *triple_in)
+{
+    SordNode** nodes = malloc(3 * sizeof(SordNode*));
+    // SordNode* nodes = malloc(3 * sizeof(struct SordNodeImpl));
+    // SordNode* nodes = calloc(3, sizeof(SordNode));
+    // SordNode* nodes = malloc(3 * sizeof(*nodes));
+    for (int8_t i = 0; i < 3; i++)
+    {
+        if (strcmp(mp_obj_get_type_str(triple_in->items[i]), "URIRef") != 0)
+        {
+            uriref_obj_t *_uriref = MP_OBJ_TO_PTR(triple_in->items[i]);
+            nodes[i] = _uriref->uri_ref->node;
+        }
+        else if (strcmp(mp_obj_get_type_str(triple_in->items[i]), "BNode") != 0)
+        {
+            bnode_obj_t *_bnode = MP_OBJ_TO_PTR(triple_in->items[i]);
+            nodes[i] = _bnode->bnode->node;
+        }
+        else if (strcmp(mp_obj_get_type_str(triple_in->items[i]), "Literal") != 0)
+        {
+            literal_obj_t *_literal = MP_OBJ_TO_PTR(triple_in->items[i]);
+            nodes[i] = _literal->literal->node;
+        }
+        else
+        {
+            mp_raise_ValueError("Wrong type of subject");
+        }
+    }
+    return nodes;
+}
+
 STATIC mp_obj_t graph_add(mp_obj_t self_in, mp_obj_t triple_in)
 {
     graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
@@ -91,70 +121,8 @@ STATIC mp_obj_t graph_add(mp_obj_t self_in, mp_obj_t triple_in)
         mp_raise_ValueError("Triple must be a tuple of length 3");
     }
 
-    SordNode *subject, *predicate, *object;
-    for (int8_t i = 0; i < 3; i++)
-    {
-        if(strcmp(mp_obj_get_type_str(triple->items[i]), "URIRef") != 0)
-        {
-            uriref_obj_t *_uriref = MP_OBJ_TO_PTR(triple->items[i]);
-            switch (i)
-            {
-            case 0:
-                subject = _uriref->uri_ref->node;
-                break;
-            case 1:
-                predicate = _uriref->uri_ref->node;
-                break;
-            case 2:
-                object = _uriref->uri_ref->node;
-                break;
-            default:
-                break;
-            }
-        }else if(strcmp(mp_obj_get_type_str(triple->items[i]), "BNode") != 0)
-        {
-            bnode_obj_t *_bnode = MP_OBJ_TO_PTR(triple->items[i]);
-            switch (i)
-            {
-            case 0:
-                subject = _bnode->bnode->node;
-                break;
-            case 1:
-                predicate = _bnode->bnode->node;
-                break;
-            case 2:
-                object = _bnode->bnode->node;
-                break;
-            default:
-                break;
-            }
-        }
-        else if(strcmp(mp_obj_get_type_str(triple->items[i]), "Literal") != 0)
-        {
-            literal_obj_t *_literal = MP_OBJ_TO_PTR(triple->items[i]);
-            switch (i)
-            {
-            case 0:
-                subject = _literal->literal->node;
-                break;
-            case 1:
-                predicate = _literal->literal->node;
-                break;
-            case 2:
-                object = _literal->literal->node;
-                break;
-            default:
-                break;
-            }
-        }
-        else
-        {
-            mp_raise_ValueError("Wrong type of subject");
-        }
-    }
-    
-    
-    if (middleware_graph_add(self->graph, subject, predicate, object))
+    SordNode** nodes= _extractTriple(triple);
+    if (middleware_graph_add(self->graph, nodes[0], nodes[1], nodes[2]))
     {
         mp_print_str(&mp_plat_print, "Added to the graph\n");
     }
@@ -170,7 +138,7 @@ STATIC const mp_rom_map_elem_t graph_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&graph_len_obj)},
     {MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&graph_close_obj)},
     {MP_ROM_QSTR(MP_QSTR_add), MP_ROM_PTR(&graph_add_obj)},
-    {MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&graph_remove_obj)},
+    // {MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&graph_remove_obj)},
 
     // {MP_ROM_QSTR(MP_QSTR_subjects), MP_ROM_PTR(&graph_subjects_obj)},
 };
