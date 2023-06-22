@@ -45,12 +45,17 @@ void middleware_graph_remove(Graph *g, SordNode *subject, SordNode *predicate, S
     sord_remove(g->model, (SordQuad){subject, predicate, object, g->context});
 }
 
-SordNode ** middleware_graph_subjects(Graph *g, int *arraySize)
+SordNode **middleware_graph_get_nodes_of_quads(Graph *g, int *arraySize, int index)
 {
-    int capacity = 1;  // Initial capacity of the array
-    int count = 0;     // Number of elements currently in the array
+    if (index < 0 || index > 2)
+    {
+        return NULL;
+    }
 
-    SordNode** nodes = malloc(capacity * sizeof(SordNode*));
+    int capacity = 1; // Initial capacity of the array
+    int count = 0;    // Number of elements currently in the array
+
+    SordNode **nodes = malloc(capacity * sizeof(SordNode *));
 
     SordIter *iter = sord_begin(g->model);
     for (; !sord_iter_end(iter); sord_iter_next(iter))
@@ -59,18 +64,17 @@ SordNode ** middleware_graph_subjects(Graph *g, int *arraySize)
         sord_iter_get(iter, quad);
         if (sord_node_equals(quad[3], g->context))
         {
-            if (count >= capacity) {
+            if (count >= capacity)
+            {
                 capacity += 1;
-                nodes = realloc(nodes, capacity * sizeof(SordNode*));
+                nodes = realloc(nodes, capacity * sizeof(SordNode *));
             }
-            nodes[count] = sord_node_copy(quad[0]);
+            nodes[count] = sord_node_copy(quad[index]);
             count++;
-            // printf("%s\n", sord_node_get_string(quad[0]));
         }
     }
     sord_iter_free(iter);
 
-    *arraySize = count;  // Update the size variable with the actual number of elements
+    *arraySize = count; // Update the size variable with the actual number of elements
     return nodes;
 }
-

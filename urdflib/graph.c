@@ -135,7 +135,8 @@ STATIC mp_obj_t graph_remove(mp_obj_t self_in, mp_obj_t triple_in)
 }
 MP_DEFINE_CONST_FUN_OBJ_2(graph_remove_obj, graph_remove);
 
-mp_obj_t sordNodes_to_tuple(SordNode **nodes,int array_size){
+mp_obj_t sordNodes_to_tuple(SordNode **nodes, int array_size)
+{
     mp_obj_t tuple[array_size];
     for (int i = 0; i < array_size; i++)
     {
@@ -178,10 +179,28 @@ STATIC mp_obj_t graph_subjects(mp_obj_t self_in)
 {
     graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
     int array_size = 0;
-    SordNode **subjects = middleware_graph_subjects(self->graph, &array_size);
-    return sordNodes_to_tuple(subjects,array_size);
+    SordNode **nodes = middleware_graph_get_nodes_of_quads(self->graph, &array_size, 0);
+    return sordNodes_to_tuple(nodes, array_size);
 }
 MP_DEFINE_CONST_FUN_OBJ_1(graph_subjects_obj, graph_subjects);
+
+STATIC mp_obj_t graph_predicates(mp_obj_t self_in)
+{
+    graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    int array_size = 0;
+    SordNode **nodes = middleware_graph_get_nodes_of_quads(self->graph, &array_size, 1);
+    return sordNodes_to_tuple(nodes, array_size);
+}
+MP_DEFINE_CONST_FUN_OBJ_1(graph_predicates_obj, graph_predicates);
+
+STATIC mp_obj_t graph_objects(mp_obj_t self_in)
+{
+    graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    int array_size = 0;
+    SordNode **nodes = middleware_graph_get_nodes_of_quads(self->graph, &array_size, 2);
+    return sordNodes_to_tuple(nodes, array_size);
+}
+MP_DEFINE_CONST_FUN_OBJ_1(graph_objects_obj, graph_objects);
 
 STATIC const mp_rom_map_elem_t graph_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&graph_len_obj)},
@@ -190,6 +209,8 @@ STATIC const mp_rom_map_elem_t graph_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_remove), MP_ROM_PTR(&graph_remove_obj)},
 
     {MP_ROM_QSTR(MP_QSTR_subjects), MP_ROM_PTR(&graph_subjects_obj)},
+    {MP_ROM_QSTR(MP_QSTR_predicates), MP_ROM_PTR(&graph_predicates_obj)},
+    {MP_ROM_QSTR(MP_QSTR_objects), MP_ROM_PTR(&graph_objects_obj)},
 };
 STATIC MP_DEFINE_CONST_DICT(graph_locals_dict, graph_locals_dict_table);
 
