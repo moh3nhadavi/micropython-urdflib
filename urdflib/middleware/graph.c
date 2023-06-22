@@ -78,3 +78,54 @@ SordNode **middleware_graph_get_nodes_of_quads(Graph *g, int *arraySize, int ind
     *arraySize = count; // Update the size variable with the actual number of elements
     return nodes;
 }
+
+SordNode2D middleware_graph_get_2D_nodes_of_quads(Graph *g, int *nodes1Size, int *nodes2Size, int index1, int index2)
+{
+    if ((index1 < 0 || index1 > 2 || index2 < 0 || index2 > 2) || (index1 == index2))
+    {
+        SordNode2D result = {NULL, NULL};
+        return result;
+    }
+
+    int nodes1Capacity = 1; // Initial capacity of the subjects array
+    int nodes1Count = 0;    // Number of subject elements currently in the array
+
+    int nodes2Capacity = 1; // Initial capacity of the predicates array
+    int nodes2Count = 0;    // Number of predicate elements currently in the array
+
+    SordNode **nodes1 = malloc(nodes1Capacity * sizeof(SordNode *));
+    SordNode **predicates = malloc(nodes2Capacity * sizeof(SordNode *));
+
+    SordIter *iter = sord_begin(g->model);
+    for (; !sord_iter_end(iter); sord_iter_next(iter))
+    {
+        SordQuad quad = {NULL, NULL, NULL, NULL};
+        sord_iter_get(iter, quad);
+        if (sord_node_equals(quad[3], g->context))
+        {
+            if (nodes1Count >= nodes1Capacity)
+            {
+                nodes1Capacity += 1;
+                nodes1 = realloc(nodes1, nodes1Capacity * sizeof(SordNode *));
+            }
+            if (nodes2Count >= nodes2Capacity)
+            {
+                nodes2Capacity += 1;
+                predicates = realloc(predicates, nodes2Capacity * sizeof(SordNode *));
+            }
+
+            nodes1[nodes1Count] = sord_node_copy(quad[index1]);
+            predicates[nodes2Count] = sord_node_copy(quad[index2]);
+
+            nodes1Count++;
+            nodes2Count++;
+        }
+    }
+    sord_iter_free(iter);
+
+    *nodes1Size = nodes1Count;     // Update the size variable with the actual number of subject elements
+    *nodes2Size = nodes2Count; // Update the size variable with the actual number of predicate elements
+
+    SordNode2D result = {nodes1, predicates};
+    return result;
+}

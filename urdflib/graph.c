@@ -135,42 +135,47 @@ STATIC mp_obj_t graph_remove(mp_obj_t self_in, mp_obj_t triple_in)
 }
 MP_DEFINE_CONST_FUN_OBJ_2(graph_remove_obj, graph_remove);
 
+mp_obj_t sordNode_to_tuple_obj(SordNode *node)
+{
+    if (strcmp(middleware_terms_get_type(node), "URIRef") == 0)
+    {
+        uriref_obj_t *uriref = m_new_obj(uriref_obj_t);
+        uriref->base.type = &urdflib_uriref_type;
+        URIRef *_uri = (URIRef *)malloc(sizeof(URIRef));
+        _uri->node = node;
+        uriref->uri_ref = _uri;
+        return MP_OBJ_FROM_PTR(uriref);
+    }
+    else if (strcmp(middleware_terms_get_type(node), "BNode") == 0)
+    {
+        bnode_obj_t *bnode = m_new_obj(bnode_obj_t);
+        bnode->base.type = &urdflib_bnode_type;
+        BNode *_bnode = (BNode *)malloc(sizeof(BNode));
+        _bnode->node = node;
+        bnode->bnode = _bnode;
+        return MP_OBJ_FROM_PTR(bnode);
+    }
+    else if (strcmp(middleware_terms_get_type(node), "Literal") == 0)
+    {
+        literal_obj_t *literal = m_new_obj(literal_obj_t);
+        literal->base.type = &urdflib_literal_type;
+        Literal *_literal = (Literal *)malloc(sizeof(Literal));
+        _literal->node = node;
+        literal->literal = _literal;
+        return MP_OBJ_FROM_PTR(literal);
+    }
+    else
+    {
+        mp_raise_ValueError("Wrong type of subject");
+    }
+}
+
 mp_obj_t sordNodes_to_tuple(SordNode **nodes, int array_size)
 {
     mp_obj_t tuple[array_size];
     for (int i = 0; i < array_size; i++)
     {
-        if (strcmp(middleware_terms_get_type(nodes[i]), "URIRef") == 0)
-        {
-            uriref_obj_t *uriref = m_new_obj(uriref_obj_t);
-            uriref->base.type = &urdflib_uriref_type;
-            URIRef *_uri = (URIRef *)malloc(sizeof(URIRef));
-            _uri->node = nodes[i];
-            uriref->uri_ref = _uri;
-            tuple[i] = MP_OBJ_FROM_PTR(uriref);
-        }
-        else if (strcmp(middleware_terms_get_type(nodes[i]), "BNode") == 0)
-        {
-            bnode_obj_t *bnode = m_new_obj(bnode_obj_t);
-            bnode->base.type = &urdflib_bnode_type;
-            BNode *_bnode = (BNode *)malloc(sizeof(BNode));
-            _bnode->node = nodes[i];
-            bnode->bnode = _bnode;
-            tuple[i] = MP_OBJ_FROM_PTR(bnode);
-        }
-        else if (strcmp(middleware_terms_get_type(nodes[i]), "Literal") == 0)
-        {
-            literal_obj_t *literal = m_new_obj(literal_obj_t);
-            literal->base.type = &urdflib_literal_type;
-            Literal *_literal = (Literal *)malloc(sizeof(Literal));
-            _literal->node = nodes[i];
-            literal->literal = _literal;
-            tuple[i] = MP_OBJ_FROM_PTR(literal);
-        }
-        else
-        {
-            mp_raise_ValueError("Wrong type of subject");
-        }
+        tuple[i] = sordNode_to_tuple_obj(nodes[i]);
     }
     return mp_obj_new_tuple(array_size, tuple);
 }
@@ -202,6 +207,42 @@ STATIC mp_obj_t graph_objects(mp_obj_t self_in)
 }
 MP_DEFINE_CONST_FUN_OBJ_1(graph_objects_obj, graph_objects);
 
+STATIC mp_obj_t graph_subject_predicates(mp_obj_t self_in)
+{
+    graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    int subjects_size, predicates_size = 0;
+    SordNode2D nodes = middleware_graph_get_2D_nodes_of_quads(self->graph, &subjects_size, &predicates_size, 0, 1);
+    mp_obj_t tuple[2];
+    tuple[0] = sordNodes_to_tuple(nodes.nodes1, subjects_size);
+    tuple[1] = sordNodes_to_tuple(nodes.nodes2, predicates_size);
+    return mp_obj_new_tuple(2, tuple);
+}
+MP_DEFINE_CONST_FUN_OBJ_1(graph_subject_predicates_obj, graph_subject_predicates);
+
+STATIC mp_obj_t graph_subject_objects(mp_obj_t self_in)
+{
+    graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    int subjects_size, objects_size = 0;
+    SordNode2D nodes = middleware_graph_get_2D_nodes_of_quads(self->graph, &subjects_size, &objects_size, 0, 2);
+    mp_obj_t tuple[2];
+    tuple[0] = sordNodes_to_tuple(nodes.nodes1, subjects_size);
+    tuple[1] = sordNodes_to_tuple(nodes.nodes2, objects_size);
+    return mp_obj_new_tuple(2, tuple);
+}
+MP_DEFINE_CONST_FUN_OBJ_1(graph_subject_objects_obj, graph_subject_objects);
+
+STATIC mp_obj_t graph_predicate_objects(mp_obj_t self_in)
+{
+    graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    int predicates_size, objects_size = 0;
+    SordNode2D nodes = middleware_graph_get_2D_nodes_of_quads(self->graph, &predicates_size, &objects_size, 1, 2);
+    mp_obj_t tuple[2];
+    tuple[0] = sordNodes_to_tuple(nodes.nodes1, predicates_size);
+    tuple[1] = sordNodes_to_tuple(nodes.nodes2, objects_size);
+    return mp_obj_new_tuple(2, tuple);
+}
+MP_DEFINE_CONST_FUN_OBJ_1(graph_predicate_objects_obj, graph_predicate_objects);
+
 STATIC const mp_rom_map_elem_t graph_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_length), MP_ROM_PTR(&graph_len_obj)},
     {MP_ROM_QSTR(MP_QSTR_close), MP_ROM_PTR(&graph_close_obj)},
@@ -211,6 +252,10 @@ STATIC const mp_rom_map_elem_t graph_locals_dict_table[] = {
     {MP_ROM_QSTR(MP_QSTR_subjects), MP_ROM_PTR(&graph_subjects_obj)},
     {MP_ROM_QSTR(MP_QSTR_predicates), MP_ROM_PTR(&graph_predicates_obj)},
     {MP_ROM_QSTR(MP_QSTR_objects), MP_ROM_PTR(&graph_objects_obj)},
+    {MP_ROM_QSTR(MP_QSTR_subject_predicates), MP_ROM_PTR(&graph_subject_predicates_obj)},
+    {MP_ROM_QSTR(MP_QSTR_subject_objects), MP_ROM_PTR(&graph_subject_objects_obj)},
+    {MP_ROM_QSTR(MP_QSTR_predicate_objects), MP_ROM_PTR(&graph_predicate_objects_obj)},
+
 };
 STATIC MP_DEFINE_CONST_DICT(graph_locals_dict, graph_locals_dict_table);
 
