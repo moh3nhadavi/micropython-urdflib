@@ -52,3 +52,22 @@ char *middleware_terms_literal_value(Literal *literal)
 {
     return (char *)sord_node_get_string(literal->node);
 }
+
+char *middleware_terms_get_type(SordNode *node)
+{
+    switch (sord_node_get_type(node))
+    {
+    case SORD_URI:
+        return "URIRef";
+        break;
+    case SORD_LITERAL:
+        return "Literal";
+        break;
+    case SORD_BLANK:
+        return "BNode";
+        break;
+    default:
+        break;
+    }
+    return NULL;
+}

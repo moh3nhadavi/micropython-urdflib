@@ -31,3 +31,4 @@ extern const mp_obj_type_t urdflib_uriref_type;
 extern const mp_obj_type_t urdflib_literal_type;
 
 char *_generateRandomString(int length);
+char *intToString(int value);

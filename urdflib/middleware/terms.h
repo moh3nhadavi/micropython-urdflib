@@ -19,3 +19,5 @@ URIRef *middleware_terms_literal_datatype(Literal *literal);
 bool middleware_terms_literal_has_language(Literal *literal);
 char *middleware_terms_literal_language(Literal *literal);
 char *middleware_terms_literal_value(Literal *literal);
+
+char *middleware_terms_get_type(SordNode *node);
