@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include "../../lib/sord/sord.h"
 #include "../globals.h"
 #include "graph.h"
 #include "terms.h"
@@ -31,8 +30,11 @@ size_t middleware_graph_num_quads(Graph *g)
 
 void middleware_graph_close(Graph *g)
 {
+    printf("m1\n");
     sord_free(g->model);
+    printf("m2\n");
     free(g);
+    printf("m3\n");
 }
 
 bool middleware_graph_add(Graph *g, SordNode *subject, SordNode *predicate, SordNode *object)

@@ -1,7 +1,7 @@
 #ifndef GLOBALS_H
 #define GLOBALS_H
 
-#include "../lib/sord/sord.h"
+#include "lib/urdflib-ext/sord/sord.h"
 
 struct World;
 typedef struct {

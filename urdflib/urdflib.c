@@ -1,39 +1,35 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "py/obj.h"
 #include "py/runtime.h"
 #include "py/objstr.h"
 
-#include "../lib/sord/sord.h"
+
+// #include "extmod/sord/sord.h"
+#include "lib/urdflib-ext/sord/sord.h"
+// #include "../lib/test.h"
 
 #include "terms.h"
 #include "graph.h"
 
 
-// void graph_serialize(Graph *g, const char *filename, SerdSyntax syntax)
-// {
-//     FILE *output_file = fopen(filename, "w");
-//     if (!output_file) {
-//         fprintf(stderr, "Failed to open output file '%s'\n", filename);
-//         return;
-//     }
-//     SerdURI *base_uri = {0};
-//     serd_env_get_base_uri(g->env, base_uri);
-//     SerdWriter *writer = serd_writer_new(
-//         syntax,
-//         SERD_STYLE_ABBREVIATED,
-//         g->env,
-//         base_uri,
-//         serd_file_sink,
-//         output_file);
-//     sord_write(g->model, writer, NULL);
-//     serd_writer_finish(writer);
-//     fclose(output_file);
-// }
 
 STATIC mp_obj_t urdflib_info(void)
 {
+    // mp_print_str(&mp_plat_print, intToString(m_get_current_bytes_allocated()));
+    // mp_print_str(&mp_plat_print, "\n");
+    // SordWorld *world = sord_world_new();
+    // mp_print_str(&mp_plat_print, intToString(m_get_current_bytes_allocated()));
+    // mp_print_str(&mp_plat_print, "\n");
+    // SordNode *node = sord_new_blank(world, (const uint8_t *)_generateRandomString2(16));
+    // mp_print_str(&mp_plat_print, intToString(m_get_current_bytes_allocated()));
+    // mp_print_str(&mp_plat_print, "\n");
+    // mp_print_str(&mp_plat_print, (char *)sord_node_get_string(node));
+    // mp_print_str(&mp_plat_print, "\n");
     return mp_obj_new_str("urdflib v0.0.1", 14);
+    // return mp_obj_new_str(moh3n_test(), 17);
+    // return mp_obj_new_str((char *)sord_node_get_string(node), 16);
 }
 MP_DEFINE_CONST_FUN_OBJ_0(urdflib_info_obj, urdflib_info);
 

@@ -6,6 +6,8 @@
 #include "py/obj.h"
 #include "py/objstr.h"
 
+#include "lib/urdflib-ext/sord/sord.h"
+
 #include "globals.h"
 #include "graph.h"
 #include "terms.h"
@@ -19,7 +21,8 @@ STATIC mp_obj_t graph_make_new(const mp_obj_type_t *type, size_t n_args, size_t 
     self->base.type = &urdflib_graph_type;
     urdflib_globals_init0();
 
-    if (strcmp(mp_obj_get_type_str(args[0]), "bool") == 0)
+    mp_print_str(&mp_plat_print, "graph_make_new\n");
+    if (n_args == 0)
     {
         bnode_obj_t *_bnode = m_new_obj(bnode_obj_t);
         _bnode->base.type = &urdflib_bnode_type;
@@ -40,7 +43,7 @@ STATIC mp_obj_t graph_make_new(const mp_obj_type_t *type, size_t n_args, size_t 
         }
         else
         {
-            mp_raise_TypeError("The optional argument must be a URIRef or BNode");
+            mp_raise_TypeError((mp_rom_error_text_t) "The optional argument must be a URIRef or BNode");
         }
     }
     return MP_OBJ_FROM_PTR(self);
@@ -65,7 +68,9 @@ MP_DEFINE_CONST_FUN_OBJ_1(graph_len_obj, graph_len);
 STATIC mp_obj_t graph_close(mp_obj_t self_in)
 {
     graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    mp_print_str(&mp_plat_print, "graph_close\n");
     middleware_graph_close(self->graph);
+    mp_print_str(&mp_plat_print, "done\n");
     return mp_const_none;
 }
 MP_DEFINE_CONST_FUN_OBJ_1(graph_close_obj, graph_close);
@@ -92,7 +97,7 @@ SordNode **_extractTriple(mp_obj_tuple_t *triple_in)
         }
         else
         {
-            mp_raise_ValueError("Wrong type of subject");
+            mp_raise_ValueError((mp_rom_error_text_t) "Wrong type of subject");
         }
     }
     return nodes;
@@ -104,7 +109,7 @@ STATIC mp_obj_t graph_add(mp_obj_t self_in, mp_obj_t triple_in)
     mp_obj_tuple_t *triple = MP_OBJ_TO_PTR(triple_in);
     if (triple->len != 3)
     {
-        mp_raise_ValueError("Triple must be a tuple of length 3");
+        mp_raise_ValueError((mp_rom_error_text_t) "Triple must be a tuple of length 3");
     }
 
     SordNode **nodes = _extractTriple(triple);
@@ -126,7 +131,7 @@ STATIC mp_obj_t graph_remove(mp_obj_t self_in, mp_obj_t triple_in)
     mp_obj_tuple_t *triple = MP_OBJ_TO_PTR(triple_in);
     if (triple->len != 3)
     {
-        mp_raise_ValueError("Triple must be a tuple of length 3");
+        mp_raise_ValueError((mp_rom_error_text_t) "Triple must be a tuple of length 3");
     }
     SordNode **nodes = _extractTriple(triple);
     middleware_graph_remove(self->graph, nodes[0], nodes[1], nodes[2]);
@@ -137,8 +142,10 @@ MP_DEFINE_CONST_FUN_OBJ_2(graph_remove_obj, graph_remove);
 
 mp_obj_t sordNode_to_tuple_obj(SordNode *node)
 {
+    mp_print_str(&mp_plat_print, "sordNode_to_tuple_obj\n");
     if (strcmp(middleware_terms_get_type(node), "URIRef") == 0)
     {
+        mp_print_str(&mp_plat_print, "3\n");
         uriref_obj_t *uriref = m_new_obj(uriref_obj_t);
         uriref->base.type = &urdflib_uriref_type;
         URIRef *_uri = (URIRef *)malloc(sizeof(URIRef));
@@ -148,6 +155,7 @@ mp_obj_t sordNode_to_tuple_obj(SordNode *node)
     }
     else if (strcmp(middleware_terms_get_type(node), "BNode") == 0)
     {
+        mp_print_str(&mp_plat_print, "3-1\n");
         bnode_obj_t *bnode = m_new_obj(bnode_obj_t);
         bnode->base.type = &urdflib_bnode_type;
         BNode *_bnode = (BNode *)malloc(sizeof(BNode));
@@ -157,6 +165,7 @@ mp_obj_t sordNode_to_tuple_obj(SordNode *node)
     }
     else if (strcmp(middleware_terms_get_type(node), "Literal") == 0)
     {
+        mp_print_str(&mp_plat_print, "3-2\n");
         literal_obj_t *literal = m_new_obj(literal_obj_t);
         literal->base.type = &urdflib_literal_type;
         Literal *_literal = (Literal *)malloc(sizeof(Literal));
@@ -166,16 +175,19 @@ mp_obj_t sordNode_to_tuple_obj(SordNode *node)
     }
     else
     {
-        mp_raise_ValueError("Wrong type of subject");
+        mp_raise_ValueError((mp_rom_error_text_t) "Wrong type of subject");
     }
 }
 
 mp_obj_t sordNodes_to_tuple(SordNode **nodes, int array_size)
 {
+    mp_print_str(&mp_plat_print, "2\n");
     mp_obj_t tuple[array_size];
     for (int i = 0; i < array_size; i++)
     {
+        mp_print_str(&mp_plat_print, "2-1\n");
         tuple[i] = sordNode_to_tuple_obj(nodes[i]);
+        mp_print_str(&mp_plat_print, "2-2\n");
     }
     return mp_obj_new_tuple(array_size, tuple);
 }
@@ -184,7 +196,9 @@ STATIC mp_obj_t graph_subjects(mp_obj_t self_in)
 {
     graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
     int array_size = 0;
+    mp_print_str(&mp_plat_print, "Getting subjects\n");
     SordNode **nodes = middleware_graph_get_nodes_of_quads(self->graph, &array_size, 0);
+    mp_print_str(&mp_plat_print, "1\n");
     return sordNodes_to_tuple(nodes, array_size);
 }
 MP_DEFINE_CONST_FUN_OBJ_1(graph_subjects_obj, graph_subjects);
@@ -259,10 +273,18 @@ STATIC const mp_rom_map_elem_t graph_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(graph_locals_dict, graph_locals_dict_table);
 
-const mp_obj_type_t urdflib_graph_type = {
-    {&mp_type_type},
-    .name = MP_QSTR_Graph,
-    .print = graph_print,
-    .make_new = graph_make_new,
-    .locals_dict = (mp_obj_dict_t *)&graph_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    urdflib_graph_type,
+    MP_QSTR_Graph,
+    MP_TYPE_FLAG_NONE,
+    make_new, graph_make_new,
+    print, graph_print,
+    locals_dict, &graph_locals_dict);
+
+// const mp_obj_type_t urdflib_graph_type = {
+//     {&mp_type_type},
+//     .name = MP_QSTR_Graph,
+//     .print = graph_print,
+//     .make_new = graph_make_new,
+//     .locals_dict = (mp_obj_dict_t *)&graph_locals_dict,
+// };
