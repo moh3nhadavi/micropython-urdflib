@@ -70,6 +70,24 @@ STATIC mp_obj_t graph_unary_op(mp_unary_op_t op, mp_obj_t self_in)
     }
 }
 
+STATIC mp_obj_t graph_binary_op(mp_binary_op_t op, mp_obj_t lhs, mp_obj_t rhs) {
+    graph_obj_t *left_hand_side = MP_OBJ_TO_PTR(lhs);
+    graph_obj_t *right_hand_side = MP_OBJ_TO_PTR(rhs);
+    graph_obj_t *self = m_new_obj(graph_obj_t);
+    self->base.type = &urdflib_graph_type;
+    bnode_obj_t *_bnode = m_new_obj(bnode_obj_t);
+    _bnode->base.type = &urdflib_bnode_type;
+    switch (op) {
+        case MP_BINARY_OP_MULTIPLY:
+        case MP_BINARY_OP_ADD:
+            _bnode->bnode = middleware_terms_bnode_new(_generateRandomString(16));
+            self->graph = middleware_graph_union(left_hand_side->graph, right_hand_side->graph, _bnode->bnode->node);
+            return MP_OBJ_FROM_PTR(self);
+        default:
+            return MP_OBJ_NULL; // operator not supported
+    }
+}
+
 STATIC mp_obj_t graph_len(mp_obj_t self_in)
 {
     graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
@@ -281,6 +299,7 @@ MP_DEFINE_CONST_OBJ_TYPE(
     make_new, graph_make_new,
     print, graph_print,
     unary_op, graph_unary_op,
+    binary_op, graph_binary_op,
     locals_dict, &graph_locals_dict);
 
 // const mp_obj_type_t urdflib_graph_type = {

@@ -22,7 +22,7 @@ char *_generateRandomString(int length)
         printf("Memory allocation failed.\n");
         return NULL;
     }
-    srand(time(NULL));
+    // srand(time(NULL));
     for (int i = 0; i < length; i++)
     {
         int index = rand() % (sizeof(charset) - 1);
