@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include "../../lib/sord/sord.h"
 #include "../globals.h"
 #include "terms.h"
 

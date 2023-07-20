@@ -7,6 +7,8 @@
 #include "py/obj.h"
 #include "py/objstr.h"
 
+#include "lib/urdflib-ext/sord/sord.h"
+
 #include "globals.h"
 #include "terms.h"
 
@@ -20,7 +22,7 @@ char *_generateRandomString(int length)
         printf("Memory allocation failed.\n");
         return NULL;
     }
-    srand(time(NULL));
+    // srand(time(NULL));
     for (int i = 0; i < length; i++)
     {
         int index = rand() % (sizeof(charset) - 1);
@@ -65,13 +67,22 @@ STATIC const mp_rom_map_elem_t bnode_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(bnode_locals_dict, bnode_locals_dict_table);
 
-const mp_obj_type_t urdflib_bnode_type = {
-    {&mp_type_type},
-    .name = MP_QSTR_BNode,
-    .print = bnode_print,
-    .make_new = bnode_make_new,
-    .locals_dict = (mp_obj_dict_t *)&bnode_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    urdflib_bnode_type,
+    MP_QSTR_BNode,
+    MP_TYPE_FLAG_NONE,
+    make_new, bnode_make_new,
+    print, bnode_print,
+    locals_dict, &bnode_locals_dict
+);
+
+// const mp_obj_type_t urdflib_bnode_type = {
+//     {&mp_type_type},
+//     .name = MP_QSTR_BNode,
+//     .print = bnode_print,
+//     .make_new = bnode_make_new,
+//     .locals_dict = (mp_obj_dict_t *)&bnode_locals_dict,
+// };
 
 STATIC mp_obj_t uriref_make_new(const mp_obj_type_t *type, size_t n_args, size_t n_kw, const mp_obj_t *args)
 {
@@ -108,13 +119,22 @@ STATIC const mp_rom_map_elem_t uriref_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(uriref_locals_dict, uriref_locals_dict_table);
 
-const mp_obj_type_t urdflib_uriref_type = {
-    {&mp_type_type},
-    .name = MP_QSTR_URIRef,
-    .print = uriref_print,
-    .make_new = uriref_make_new,
-    .locals_dict = (mp_obj_dict_t *)&uriref_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    urdflib_uriref_type,
+    MP_QSTR_URIRef,
+    MP_TYPE_FLAG_NONE,
+    make_new, uriref_make_new,
+    print, uriref_print,
+    locals_dict, &uriref_locals_dict
+);
+
+// const mp_obj_type_t urdflib_uriref_type = {
+//     {&mp_type_type},
+//     .name = MP_QSTR_URIRef,
+//     .print = uriref_print,
+//     .make_new = uriref_make_new,
+//     .locals_dict = (mp_obj_dict_t *)&uriref_locals_dict,
+// };
 
 char *intToString(int value)
 {
@@ -187,7 +207,7 @@ STATIC mp_obj_t literal_make_new(const mp_obj_type_t *type, size_t n_args, size_
     }
     else
     {
-        mp_raise_ValueError("Unknown type");
+        mp_raise_TypeError((mp_rom_error_text_t)"Unknown type");
     }
 
 
@@ -197,7 +217,7 @@ STATIC mp_obj_t literal_make_new(const mp_obj_type_t *type, size_t n_args, size_
         _datatype = dtype->uri_ref;
     }
     else {
-        mp_raise_ValueError("Unknown type");
+        mp_raise_TypeError((mp_rom_error_text_t)"Unknown type");
     }
 
     const char *language = NULL;
@@ -270,11 +290,22 @@ STATIC const mp_rom_map_elem_t literal_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(literal_locals_dict, literal_locals_dict_table);
 
-const mp_obj_type_t urdflib_literal_type = {
-    {&mp_type_type},
-    .name = MP_QSTR_Literal,
-    .print = literal_print,
-    .make_new = literal_make_new,
-    .attr = literal_property,
-    .locals_dict = (mp_obj_dict_t *)&literal_locals_dict,
-};
+
+MP_DEFINE_CONST_OBJ_TYPE(
+    urdflib_literal_type,
+    MP_QSTR_Literal,
+    MP_TYPE_FLAG_NONE,
+    make_new, literal_make_new,
+    print, literal_print,
+    attr, literal_property,
+    locals_dict, &literal_locals_dict
+);
+
+// const mp_obj_type_t urdflib_literal_type = {
+//     {&mp_type_type},
+//     .name = MP_QSTR_Literal,
+//     .print = literal_print,
+//     .make_new = literal_make_new,
+//     .attr = literal_property,
+//     .locals_dict = (mp_obj_dict_t *)&literal_locals_dict,
+// };

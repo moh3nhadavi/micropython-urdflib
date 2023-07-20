@@ -1,5 +1,4 @@
 #include <stdlib.h>
-#include "../../lib/sord/sord.h"
 #include "../globals.h"
 #include "graph.h"
 #include "terms.h"
@@ -31,8 +30,11 @@ size_t middleware_graph_num_quads(Graph *g)
 
 void middleware_graph_close(Graph *g)
 {
+    printf("m1\n");
     sord_free(g->model);
+    printf("m2\n");
     free(g);
+    printf("m3\n");
 }
 
 bool middleware_graph_add(Graph *g, SordNode *subject, SordNode *predicate, SordNode *object)
@@ -128,4 +130,39 @@ SordNode2D middleware_graph_get_2D_nodes_of_quads(Graph *g, int *nodes1Size, int
 
     SordNode2D result = {nodes1, predicates};
     return result;
+}
+
+
+Graph *middleware_graph_union(Graph *g1, Graph *g2, SordNode *context)
+{
+    // TODO: implement bindings and base and prefixes
+    Graph *g = middleware_graph_graph_new(context);
+
+    // Copy all quads from g1 to g
+    SordIter *iter = sord_begin(g1->model);
+    for (; !sord_iter_end(iter); sord_iter_next(iter))
+    {
+        SordQuad quad = {NULL, NULL, NULL, NULL};
+        sord_iter_get(iter, quad);
+        if (sord_node_equals(quad[3], g1->context))
+        {
+            sord_add(g->model, (SordQuad){sord_node_copy(quad[0]), sord_node_copy(quad[1]), sord_node_copy(quad[2]), context});
+        }
+    }
+    sord_iter_free(iter);
+
+    // Copy all quads from g2 to g
+    iter = sord_begin(g2->model);
+    for (; !sord_iter_end(iter); sord_iter_next(iter))
+    {
+        SordQuad quad = {NULL, NULL, NULL, NULL};
+        sord_iter_get(iter, quad);
+        if (sord_node_equals(quad[3], g2->context))
+        {
+            sord_add(g->model, (SordQuad){sord_node_copy(quad[0]), sord_node_copy(quad[1]), sord_node_copy(quad[2]), context});
+        }
+    }
+    sord_iter_free(iter);
+
+    return g;
 }

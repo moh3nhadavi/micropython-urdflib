@@ -22,3 +22,4 @@ extern bool middleware_graph_add(Graph *g, SordNode *subject, SordNode *predicat
 extern void middleware_graph_remove(Graph *g, SordNode *subject, SordNode *predicate, SordNode *object);
 extern SordNode ** middleware_graph_get_nodes_of_quads(Graph *g, int *arraySize, int index);
 extern SordNode2D middleware_graph_get_2D_nodes_of_quads(Graph* g, int* nodes1Size, int* nodes2Size, int index1, int index2);
+extern Graph *middleware_graph_union(Graph *g1, Graph *g2, SordNode *context);

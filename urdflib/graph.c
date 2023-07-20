@@ -6,6 +6,8 @@
 #include "py/obj.h"
 #include "py/objstr.h"
 
+#include "lib/urdflib-ext/sord/sord.h"
+
 #include "globals.h"
 #include "graph.h"
 #include "terms.h"
@@ -19,7 +21,7 @@ STATIC mp_obj_t graph_make_new(const mp_obj_type_t *type, size_t n_args, size_t 
     self->base.type = &urdflib_graph_type;
     urdflib_globals_init0();
 
-    if (strcmp(mp_obj_get_type_str(args[0]), "bool") == 0)
+    if (n_args == 0)
     {
         bnode_obj_t *_bnode = m_new_obj(bnode_obj_t);
         _bnode->base.type = &urdflib_bnode_type;
@@ -40,7 +42,7 @@ STATIC mp_obj_t graph_make_new(const mp_obj_type_t *type, size_t n_args, size_t 
         }
         else
         {
-            mp_raise_TypeError("The optional argument must be a URIRef or BNode");
+            mp_raise_TypeError((mp_rom_error_text_t) "The optional argument must be a URIRef or BNode");
         }
     }
     return MP_OBJ_FROM_PTR(self);
@@ -53,6 +55,37 @@ STATIC void graph_print(const mp_print_t *print, mp_obj_t self_in, mp_print_kind
     mp_print_str(print, "URDFLib;Graph(");
     mp_print_str(print, (const char *)sord_node_get_string(self->graph->context));
     mp_print_str(print, ")");
+}
+
+STATIC mp_obj_t graph_unary_op(mp_unary_op_t op, mp_obj_t self_in)
+{
+    graph_obj_t *self = MP_OBJ_TO_PTR(self_in);
+    switch (op) {
+        case MP_UNARY_OP_BOOL:
+            return mp_obj_new_bool(middleware_graph_num_quads(self->graph) > 0);
+        case MP_UNARY_OP_LEN:
+            return mp_obj_new_int(middleware_graph_num_quads(self->graph));
+        default:
+            return MP_OBJ_NULL; // op not supported
+    }
+}
+
+STATIC mp_obj_t graph_binary_op(mp_binary_op_t op, mp_obj_t lhs, mp_obj_t rhs) {
+    graph_obj_t *left_hand_side = MP_OBJ_TO_PTR(lhs);
+    graph_obj_t *right_hand_side = MP_OBJ_TO_PTR(rhs);
+    graph_obj_t *self = m_new_obj(graph_obj_t);
+    self->base.type = &urdflib_graph_type;
+    bnode_obj_t *_bnode = m_new_obj(bnode_obj_t);
+    _bnode->base.type = &urdflib_bnode_type;
+    switch (op) {
+        case MP_BINARY_OP_MULTIPLY:
+        case MP_BINARY_OP_ADD:
+            _bnode->bnode = middleware_terms_bnode_new(_generateRandomString(16));
+            self->graph = middleware_graph_union(left_hand_side->graph, right_hand_side->graph, _bnode->bnode->node);
+            return MP_OBJ_FROM_PTR(self);
+        default:
+            return MP_OBJ_NULL; // operator not supported
+    }
 }
 
 STATIC mp_obj_t graph_len(mp_obj_t self_in)
@@ -92,7 +125,7 @@ SordNode **_extractTriple(mp_obj_tuple_t *triple_in)
         }
         else
         {
-            mp_raise_ValueError("Wrong type of subject");
+            mp_raise_ValueError((mp_rom_error_text_t) "Wrong type of subject");
         }
     }
     return nodes;
@@ -104,7 +137,7 @@ STATIC mp_obj_t graph_add(mp_obj_t self_in, mp_obj_t triple_in)
     mp_obj_tuple_t *triple = MP_OBJ_TO_PTR(triple_in);
     if (triple->len != 3)
     {
-        mp_raise_ValueError("Triple must be a tuple of length 3");
+        mp_raise_ValueError((mp_rom_error_text_t) "Triple must be a tuple of length 3");
     }
 
     SordNode **nodes = _extractTriple(triple);
@@ -126,7 +159,7 @@ STATIC mp_obj_t graph_remove(mp_obj_t self_in, mp_obj_t triple_in)
     mp_obj_tuple_t *triple = MP_OBJ_TO_PTR(triple_in);
     if (triple->len != 3)
     {
-        mp_raise_ValueError("Triple must be a tuple of length 3");
+        mp_raise_ValueError((mp_rom_error_text_t) "Triple must be a tuple of length 3");
     }
     SordNode **nodes = _extractTriple(triple);
     middleware_graph_remove(self->graph, nodes[0], nodes[1], nodes[2]);
@@ -166,7 +199,7 @@ mp_obj_t sordNode_to_tuple_obj(SordNode *node)
     }
     else
     {
-        mp_raise_ValueError("Wrong type of subject");
+        mp_raise_ValueError((mp_rom_error_text_t) "Wrong type of subject");
     }
 }
 
@@ -259,10 +292,20 @@ STATIC const mp_rom_map_elem_t graph_locals_dict_table[] = {
 };
 STATIC MP_DEFINE_CONST_DICT(graph_locals_dict, graph_locals_dict_table);
 
-const mp_obj_type_t urdflib_graph_type = {
-    {&mp_type_type},
-    .name = MP_QSTR_Graph,
-    .print = graph_print,
-    .make_new = graph_make_new,
-    .locals_dict = (mp_obj_dict_t *)&graph_locals_dict,
-};
+MP_DEFINE_CONST_OBJ_TYPE(
+    urdflib_graph_type,
+    MP_QSTR_Graph,
+    MP_TYPE_FLAG_NONE,
+    make_new, graph_make_new,
+    print, graph_print,
+    unary_op, graph_unary_op,
+    binary_op, graph_binary_op,
+    locals_dict, &graph_locals_dict);
+
+// const mp_obj_type_t urdflib_graph_type = {
+//     {&mp_type_type},
+//     .name = MP_QSTR_Graph,
+//     .print = graph_print,
+//     .make_new = graph_make_new,
+//     .locals_dict = (mp_obj_dict_t *)&graph_locals_dict,
+// };

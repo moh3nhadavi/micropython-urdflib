@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "../lib/sord/sord.h"
+#include "lib/urdflib-ext/sord/sord.h"
 #include "globals.h"
 
 World *world = NULL;
