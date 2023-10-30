@@ -7,7 +7,7 @@ typedef struct _graph_obj_t
     Graph *graph;
 } graph_obj_t;
 
-const mp_obj_type_t urdflib_graph_type;
+// const mp_obj_type_t urdflib_graph_type;
 
 typedef struct _dataset_obj_t
 {
@@ -15,6 +15,6 @@ typedef struct _dataset_obj_t
     Dataset *dataset;
 } dataset_obj_t;
 
-const mp_obj_type_t urdflib_dataset_type;
+extern const mp_obj_type_t urdflib_dataset_type;
 
 extern const mp_obj_type_t urdflib_graph_type;

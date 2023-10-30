@@ -7,7 +7,7 @@ typedef struct _bnode_obj_t
     BNode *bnode;
 } bnode_obj_t;
 
-const mp_obj_type_t urdflib_bnode_type;
+// const mp_obj_type_t urdflib_bnode_type;
 
 typedef struct _uriref_obj_t
 {
@@ -15,7 +15,7 @@ typedef struct _uriref_obj_t
     URIRef *uri_ref;
 } uriref_obj_t;
 
-const mp_obj_type_t urdflib_uriref_type;
+// const mp_obj_type_t urdflib_uriref_type;
 
 typedef struct _literal_obj_t
 {
@@ -23,7 +23,7 @@ typedef struct _literal_obj_t
     Literal *literal;
 } literal_obj_t;
 
-const mp_obj_type_t urdflib_literal_type;
+// const mp_obj_type_t urdflib_literal_type;
 
 
 extern const mp_obj_type_t urdflib_bnode_type;
