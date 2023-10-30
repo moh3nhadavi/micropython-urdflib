@@ -9,7 +9,7 @@ typedef struct {
     SerdEnv *env;
 } World;
 
-World *world;
+extern World *world;
 
 extern void urdflib_globals_init0();
 

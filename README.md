@@ -35,7 +35,7 @@ MicroPython ports have been tested successfully: the **Unix** and the **ESP32** 
 
 ### How to cite
 
-Mohsen Hadavi, Maxime Lefrançois. "The urdlib Library for MicroPython: Manipulating RDF on Constrained Devices". In _International Semantic Web Conference_. Cham: Springer International Publishing, 2023
+Mohsen Hadavi, Maxime Lefrançois. "The urdlib Library for MicroPython: Manipulating RDF on Constrained Devices". In _International Semantic Web Conference, Poster and Demo track_. Cham: Springer International Publishing, 2023
 
 Also, You can find step-by-step instructions to compile the code and reproduce the experiments online [here](https://github.com/moh3nhadavi/micropython-urdflib-iswc2023/).
 
